@@ -34,6 +34,7 @@ creeper_material = Material(diffuse=(0.4, 0.9, 0.4), spec=32, Ks=0.1)
 hair = Material(diffuse=(0.6,0.3,0),spec=256,Ks=0.2)
 shirt = Material(diffuse=(0,0.5,0.5),spec=256,Ks=0.2)
 piel = Material(diffuse=(0.88,0.76,0.68),spec=256,Ks=0.2)
+Sunmirror = Material(diffuse=(1,1,0),spec=64,Ks=0.2,matType=REFLECTIVE)
 
 # Coordenadas para el ojo derecho (ajustar según se necesite)
 
@@ -175,6 +176,13 @@ raytracer.scene.append(steve_leg_front_left)
 # Pata delantera derecha
 steve_leg_front_right = OBB(position=(1.85, -2, -4.75), size=(0.25, 0.5, 0.25), orientation=orientation, material=water)
 raytracer.scene.append(steve_leg_front_right)
+
+
+#sun
+raytracer.scene.append(Sphere(position=(-2,2,-5), radius = 0.8, material=Sunmirror))
+
+#Steve arm
+raytracer.scene.append(AABB(position=(-0.5,-0.3,-5),size=(0.5,0.5,0.5),material=piel))
 
 
 raytracer.lights = []  # Limpiar las luces existentes
