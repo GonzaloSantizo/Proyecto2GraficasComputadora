@@ -28,6 +28,13 @@ mirror = Material(diffuse=(0.9,0.9,0.9),spec=64,Ks=0.2,matType=REFLECTIVE)
 blueMirror = Material(diffuse=(0.4,0.4,0.9),spec=32,Ks=0.15,matType=REFLECTIVE)
 mars = Material(texture = marstextture,spec=64,Ks=0.1,matType=REFLECTIVE)
 
+# Definición del material del Creeper (verde)
+creeper_material = Material(diffuse=(0.4, 0.9, 0.4), spec=32, Ks=0.1)
+
+hair = Material(diffuse=(0.6,0.3,0),spec=256,Ks=0.2)
+shirt = Material(diffuse=(0,0.5,0.5),spec=256,Ks=0.2)
+piel = Material(diffuse=(0.88,0.76,0.68),spec=256,Ks=0.2)
+
 # Coordenadas para el ojo derecho (ajustar según se necesite)
 
 
@@ -87,8 +94,7 @@ orientacion_ojos = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
 orientation_default = [[1, 0, 0], [0, 1, 0], [0, 0, 0]]
 
-# Definición del material del Creeper (verde)
-creeper_material = Material(diffuse=(0.4, 0.9, 0.4), spec=32, Ks=0.1)
+
 
 # Cabeza del Creeper
 creeper_head = OBB(position=(0, 0.6, -5), size=(0.6, 0.6, 0.6), orientation=orientation, material=creeper_material)
@@ -128,14 +134,47 @@ raytracer.scene.append(creeper_leg_front_right)
 # Pata trasera derecha
 #creeper_leg_back_right = OBB(position=(0.35, -2, -5.25), size=(0.25, 0.5, 0.25), orientation=orientation, material=creeper_material)
 #raytracer.scene.append(creeper_leg_back_right)
-# Resto del código ...
+
 # Definición de dimensiones para los ojos
 
 
 # Dibujar ojos
 
 square_color = (255, 0, 0)  # Red color
-# Resto del código ...
+
+
+# steve parts
+
+# Cabeza de steve
+steve_head = OBB(position=(1.5, 0.6, -5), size=(0.6, 0.6, 0.6), orientation=orientation, material=piel)
+raytracer.scene.append(steve_head)
+
+steve_head = OBB(position=(1.5, 0.6, -5), size=(0.6, 0.6, 0.6), orientation=orientation, material=piel)
+#raytracer.scene.append(creeper_head)
+# Material para las características faciales (negro)
+face_material = Material(diffuse=(0, 0, 0), spec=32, Ks=0.1)
+eye_material = Material(diffuse=(0, 0, 0), spec=32, Ks=0)
+# Ojo izquierdo
+#creeper_eye_left = OBB(position=(-0.25, 0.8, -4.4), size=(0.15, 0.15, 0.05), orientation=orientacion_ojos, material=face_material)
+#raytracer.scene.append(creeper_eye_left)
+
+# Ojo derecho
+#creeper_eye_right = OBB(position=(0.35, 0.8, -4.4), size=(0.15, 0.15, 0.05), orientation=orientacion_ojos, material=eye_material)
+#raytracer.scene.append(creeper_eye_right)
+
+
+
+
+# Cuerpo de steve
+steve_body = OBB(position=(1.5, -0.8, -5), size=(-0.6, 0.8, 0.5), orientation=orientation, material=shirt)
+raytracer.scene.append(steve_body)
+# Pata delantera izquierda
+steve_leg_front_left = OBB(position=(1.15, -2, -4.75), size=(0.25, 0.5, 0.25), orientation=orientation, material=water)
+raytracer.scene.append(steve_leg_front_left)
+
+# Pata delantera derecha
+steve_leg_front_right = OBB(position=(1.85, -2, -4.75), size=(0.25, 0.5, 0.25), orientation=orientation, material=water)
+raytracer.scene.append(steve_leg_front_right)
 
 
 raytracer.lights = []  # Limpiar las luces existentes
@@ -157,12 +196,26 @@ EYE_VERTICAL_POSITION = height // 2 - 40  # Adjust this for vertical positioning
 LEFT_EYE_HORIZONTAL_POSITION = width // 2 - EYE_WIDTH +5
 RIGHT_EYE_HORIZONTAL_POSITION = width // 2 + 20
 
+
+# ojos creeper
 pygame.draw.rect(screen, COLOR_OJO, (LEFT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION, EYE_WIDTH, EYE_HEIGHT))  # Ojo izquierdo
 pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION, EYE_WIDTH, EYE_HEIGHT))  # Ojo derecho
 pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION-15, EYE_VERTICAL_POSITION+15, EYE_WIDTH, EYE_HEIGHT))  
 pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION-20, EYE_VERTICAL_POSITION+20, EYE_WIDTH+10, EYE_HEIGHT))  
 
 pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION-20, EYE_VERTICAL_POSITION+35, EYE_WIDTH-10, EYE_HEIGHT-10))  
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION+35, EYE_WIDTH-10, EYE_HEIGHT-10))  
+
+
+
+#ojos steve
+
+pygame.draw.rect(screen, COLOR_OJO, (LEFT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION, EYE_WIDTH, EYE_HEIGHT))  # Ojo izquierdo
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION, EYE_WIDTH, EYE_HEIGHT))  # Ojo derecho
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION+25, EYE_VERTICAL_POSITION-5, EYE_WIDTH, EYE_HEIGHT))  
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION+30, EYE_VERTICAL_POSITION-5, EYE_WIDTH-10, EYE_HEIGHT))  
+
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION+45, EYE_VERTICAL_POSITION-5, EYE_WIDTH, EYE_HEIGHT))  
 pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION+35, EYE_WIDTH-10, EYE_HEIGHT-10))  
 
 pygame.display.flip()
