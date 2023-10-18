@@ -5,6 +5,8 @@ from rt import RayTracer
 from figures import *
 from lights import *
 from materials import *
+import math
+
 width = 256
 height = 256
 
@@ -14,17 +16,32 @@ screen = pygame.display.set_mode((width,height),pygame.DOUBLEBUF|pygame.HWACCEL|
 screen.set_alpha(None)
 
 raytracer = RayTracer(screen)
-raytracer.envMap = pygame.image.load("textures/parkingLot.bmp")
+raytracer.envMap = pygame.image.load("textures/forestbackground.bmp")
 raytracer.rtClearColor(0.25,0.25,0.25)
 
-earthTexture = pygame.image.load("textures/earthDay.bmp")
+marstextture = pygame.image.load("textures/mars.bmp")
 
 brick = Material(diffuse=(1,0.4,0.4),spec=8,Ks=0.01)
 grass = Material(diffuse=(0.4,1,0.4),spec=32,Ks=0.1)
 water = Material(diffuse=(0.4,0.4,1),spec=256,Ks=0.2)
 mirror = Material(diffuse=(0.9,0.9,0.9),spec=64,Ks=0.2,matType=REFLECTIVE)
 blueMirror = Material(diffuse=(0.4,0.4,0.9),spec=32,Ks=0.15,matType=REFLECTIVE)
-earth = Material(texture = earthTexture,spec=64,Ks=0.1,matType=REFLECTIVE)
+mars = Material(texture = marstextture,spec=64,Ks=0.1,matType=REFLECTIVE)
+
+# Coordenadas para el ojo derecho (ajustar según se necesite)
+
+
+def pixelate(surface, pixel_size):
+    """
+    Esta función toma una superficie de pygame y la "pixela" reduciendo su tamaño y luego escalándola de nuevo.
+    """
+    width, height = surface.get_size()
+    # Reduce la resolución
+    temp_surface = pygame.transform.scale(surface, (width // pixel_size, height // pixel_size))
+    # Escala de nuevo a la resolución original
+    pixelated_surface = pygame.transform.scale(temp_surface, (width, height))
+    return pixelated_surface
+
 # Definición de las matrices de rotación
 def rotation_y(theta):
     """Matriz de rotación alrededor del eje Y."""
@@ -42,48 +59,113 @@ def rotation_x(phi):
         [0, math.sin(phi), math.cos(phi)]
     ]
 
-def get_orientation(theta, phi):
-    orientation_y = rotation_y(theta)
-    orientation_x = rotation_x(phi)
-    orientation = [
-        [
-            orientation_x[i][0] * orientation_y[0][0] + orientation_x[i][1] * orientation_y[1][0] + orientation_x[i][2] * orientation_y[2][0],
-            orientation_x[i][0] * orientation_y[0][1] + orientation_x[i][1] * orientation_y[1][1] + orientation_x[i][2] * orientation_y[2][1],
-            orientation_x[i][0] * orientation_y[0][2] + orientation_x[i][1] * orientation_y[1][2] + orientation_x[i][2] * orientation_y[2][2]
-        ] for i in range(3)
-    ]
-    return orientation
+# Ángulo de rotación de 45 grados para ambos ejes
+theta = math.radians(65)
+phi = math.radians(0)
 
-# ... [Resto del código de inicialización y carga de materiales]
+# Aplicar las matrices de rotación
+orientation_y = rotation_y(theta)
+orientation_x = rotation_x(phi)
 
-# Para la cabeza
-theta_head = math.radians(50)
-phi_head = math.radians(10)
-orientation_head = get_orientation(theta_head, phi_head)
+# Combinar las rotaciones (rotación en X seguida de una rotación en Y)
+orientation = [
+    [
+        orientation_x[i][0] * orientation_y[0][0] + orientation_x[i][1] * orientation_y[1][0] + orientation_x[i][2] * orientation_y[2][0],
+        orientation_x[i][0] * orientation_y[0][1] + orientation_x[i][1] * orientation_y[1][1] + orientation_x[i][2] * orientation_y[2][1],
+        orientation_x[i][0] * orientation_y[0][2] + orientation_x[i][1] * orientation_y[1][2] + orientation_x[i][2] * orientation_y[2][2]
+    ] for i in range(3)
+]
 
-# Para el cuerpo
-theta_body = math.radians(10)
-phi_body = math.radians(10)
-orientation_body = get_orientation(theta_body, phi_body)
+orientacion_ojos = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
-# Agregar el OBB a tu escena con la orientación
-obb = OBB(position=(0, 0, -5), size=(0.5, 0.5, 0.5), orientation=orientation_head, material=grass)
-raytracer.scene.append(obb)
+# Agregar el OBB a tu escena con la orientación combinada
+#obb = OBB(position=(0, 0, -5), size=(1, 1, 1), orientation=orientation, material=grass)
+#raytracer.scene.append(obb)
+#obb2= OBB(position=(0, -1.65, -5), size=(0.4, 1, 0.6), orientation=orientation, material=grass)
 
-body = OBB(position=(0, -1.65, -5), size=(0.4, 1, 0.3), orientation=orientation_body, material=grass)
-#raytracer.scene.append(body)
+#raytracer.scene.append(obb2)
 
-# ... [Resto del código para renderizar y manejar eventos]
+orientation_default = [[1, 0, 0], [0, 1, 0], [0, 0, 0]]
+
+# Definición del material del Creeper (verde)
+creeper_material = Material(diffuse=(0.4, 0.9, 0.4), spec=32, Ks=0.1)
+
+# Cabeza del Creeper
+creeper_head = OBB(position=(0, 0.6, -5), size=(0.6, 0.6, 0.6), orientation=orientation, material=creeper_material)
+raytracer.scene.append(creeper_head)
+
+creeper_head = OBB(position=(0, 0.6, -5), size=(0.6, 0.6, 0.6), orientation=orientation, material=creeper_material)
+#raytracer.scene.append(creeper_head)
+# Material para las características faciales (negro)
+face_material = Material(diffuse=(0, 0, 0), spec=32, Ks=0.1)
+eye_material = Material(diffuse=(0, 0, 0), spec=32, Ks=0)
+# Ojo izquierdo
+#creeper_eye_left = OBB(position=(-0.25, 0.8, -4.4), size=(0.15, 0.15, 0.05), orientation=orientacion_ojos, material=face_material)
+#raytracer.scene.append(creeper_eye_left)
+
+# Ojo derecho
+#creeper_eye_right = OBB(position=(0.35, 0.8, -4.4), size=(0.15, 0.15, 0.05), orientation=orientacion_ojos, material=eye_material)
+#raytracer.scene.append(creeper_eye_right)
 
 
 
-raytracer.lights.append(AmbientLight(intensity=0.4))
-raytracer.lights.append(DirectionalLight(direction=(-1,-1,0),intensity=0.1))
+
+# Cuerpo del Creeper
+creeper_body = OBB(position=(0, -0.8, -5), size=(-0.6, 0.8, 0.5), orientation=orientation, material=creeper_material)
+raytracer.scene.append(creeper_body)
+# Pata delantera izquierda
+creeper_leg_front_left = OBB(position=(-0.35, -2, -4.75), size=(0.25, 0.5, 0.25), orientation=orientation, material=creeper_material)
+raytracer.scene.append(creeper_leg_front_left)
+
+# Pata delantera derecha
+creeper_leg_front_right = OBB(position=(0.35, -2, -4.75), size=(0.25, 0.5, 0.25), orientation=orientation, material=creeper_material)
+raytracer.scene.append(creeper_leg_front_right)
+
+# Pata trasera izquierda
+#creeper_leg_back_left = OBB(position=(-0.35, -2, -5.25), size=(0.25, 0.5, 0.25), orientation=orientation, material=creeper_material)
+#raytracer.scene.append(creeper_leg_back_left)
+
+# Pata trasera derecha
+#creeper_leg_back_right = OBB(position=(0.35, -2, -5.25), size=(0.25, 0.5, 0.25), orientation=orientation, material=creeper_material)
+#raytracer.scene.append(creeper_leg_back_right)
+# Resto del código ...
+# Definición de dimensiones para los ojos
+
+
+# Dibujar ojos
+
+square_color = (255, 0, 0)  # Red color
+# Resto del código ...
+
+
+raytracer.lights = []  # Limpiar las luces existentes
+raytracer.lights.append(AmbientLight(intensity=0.5))
+raytracer.lights.append(DirectionalLight(direction=(-1, 0, -1), intensity=0.7))
+
 #raytracer.lights.append(PointLight(point=(1.5,0,-5),intensity=1,color=(1,0,1)))
 
 raytracer.rtClear()
 raytracer.rtRender()
 
+
+COLOR_OJO = (0, 0, 0)  # Negro
+
+# Dibujar ojos
+EYE_WIDTH = 15
+EYE_HEIGHT = 15
+EYE_VERTICAL_POSITION = height // 2 - 40  # Adjust this for vertical positioning
+LEFT_EYE_HORIZONTAL_POSITION = width // 2 - EYE_WIDTH +5
+RIGHT_EYE_HORIZONTAL_POSITION = width // 2 + 20
+
+pygame.draw.rect(screen, COLOR_OJO, (LEFT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION, EYE_WIDTH, EYE_HEIGHT))  # Ojo izquierdo
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION, EYE_WIDTH, EYE_HEIGHT))  # Ojo derecho
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION-15, EYE_VERTICAL_POSITION+15, EYE_WIDTH, EYE_HEIGHT))  
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION-20, EYE_VERTICAL_POSITION+20, EYE_WIDTH+10, EYE_HEIGHT))  
+
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION-20, EYE_VERTICAL_POSITION+35, EYE_WIDTH-10, EYE_HEIGHT-10))  
+pygame.draw.rect(screen, COLOR_OJO, (RIGHT_EYE_HORIZONTAL_POSITION, EYE_VERTICAL_POSITION+35, EYE_WIDTH-10, EYE_HEIGHT-10))  
+
+pygame.display.flip()
 print("\nRender Time:",pygame.time.get_ticks()/1000,"secs")
 
 isRunning = True
