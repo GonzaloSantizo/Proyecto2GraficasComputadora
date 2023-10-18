@@ -1,5 +1,4 @@
 import mt
-import numpy as np
 
 from math import acos,asin
 
@@ -25,7 +24,7 @@ def totalInternalReflection(incident,normal,n1,n2):
         n1,n2=n2,n1
         
     Ai = acos(np.dot(incident,normal))
-    Ac = asin(n2/n1)
+    Ac = asen(n2/n1)
     
     return Ai>=Ac
 

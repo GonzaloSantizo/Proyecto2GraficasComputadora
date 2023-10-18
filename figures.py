@@ -113,7 +113,6 @@ class AABB(Shape):
         topPlane=Plane(np.add(self.position,(0,size[1]/2,0)),(0,1,0),material)
         backPlane=Plane(np.add(self.position,(0,0,-size[2]/2)),(0,0,-1),material)
         frontPlane=Plane(np.add(self.position,(0,0,size[2]/2)),(0,0,1),material)
-
         self.planes.append(leftPlane)
         self.planes.append(rightPlane)
         self.planes.append(bottomPlane)
@@ -127,48 +126,6 @@ class AABB(Shape):
         for i in range(3):
             self.boundsMin[i]=self.position[i]-(bias+size[i]/2)
             self.boundsMax[i]=self.position[i]+(bias+size[i]/2)
-
-
-
-class OBB(Shape):
-    def __init__(self, position,size, material):
-       # self.size=size
-        super().__init__(position,material)
-        self.planes=[]
-        self.size=size
-       # self.lenghts=[0,0,0]
-       # self.lengthX=size[0]
-       # self.lengthY=size[1]
-       # self.lengthZ=size[2]
-        #Sides
-        leftPlane=Plane(np.add(self.position,(-size[0]/2,0,0)),(-1,0,0),material)
-        rightPlane=Plane(np.add(self.position,(size[0]/2,0,0)),(1,0,0),material)
-        bottomPlane=Plane(np.add(self.position,(0,-size[1],0,)),(0,-1,0),material)
-        topPlane=Plane(np.add(self.position,(0,size[1]/2,0)),(0,1,0),material)
-        backPlane=Plane(np.add(self.position,(0,0,-size[2]/2)),(0,0,-1),material)
-        frontPlane=Plane(np.add(self.position,(0,0,size[2]/2)),(0,0,1),material)
-
-
-
-
-        self.planes.append(leftPlane)
-        self.planes.append(rightPlane)
-        self.planes.append(bottomPlane)
-        self.planes.append(topPlane)
-        self.planes.append(backPlane)
-        self.planes.append(frontPlane)
-
-        #Bounds
-        self.boundsMin=[0,0,0]
-        self.boundsMax=[0,0,0]
-        bias=0.001
-        for i in range(3):
-            self.boundsMin[i]=self.position[i]-(bias+size[i]/2)
-            self.boundsMax[i]=self.position[i]+(bias+size[i]/2)
-
-
-
-
     def ray_intersect(self, orig, dir):
         intersect=None
         t=float("inf")
@@ -205,6 +162,51 @@ class OBB(Shape):
                         texcoords=(u,v),
                         obj=self)
 
+class OBB(Shape):
+    def __init__(self, position, size, orientation, material):
+        super().__init__(position, material)
+        self.size = size  # half-lengths along each axis
+        self.orientation = orientation  # should be an orthonormal basis defining the box's orientation
 
+    def ray_intersect(self, orig, dir):
+        t_min = float('-inf')
+        t_max = float('inf')
 
+        p = mt.subtract_arrays(self.position, orig)
 
+        for i in range(3):
+            # project the ray direction and the difference vector onto the current axis
+            d = mt.producto_punto(dir, self.orientation[i])
+            e = mt.producto_punto(p, self.orientation[i])
+
+            if abs(d) < 1e-5:
+                # Ray is parallel to slab. No hit if origin not within slab
+                if -e - self.size[i] > 0 or -e + self.size[i] < 0:
+                    return None
+            else:
+                # Compute intersection t value of ray with near and far plane of slab
+                t1 = (e + self.size[i]) / d
+                t2 = (e - self.size[i]) / d
+
+                # Make t1 be the intersection with the near plane, t2 with the far plane
+                if t1 > t2:
+                    t1, t2 = t2, t1
+
+                # Update t_min, t_max
+                t_min = max(t_min, t1)
+                t_max = min(t_max, t2)
+
+                # Exit if the box is missed
+                if t_min > t_max:
+                    return None
+
+        # If we get here, then there was an intersection
+        P = mt.add_arrays(orig, mt.multiply_scalar_array(t_min, dir))
+        normal = mt.subtract_arrays(P, self.position)
+        normal = mt.normalizar_vector(normal)
+
+        return Intercept(distance=t_min,
+                         point=P,
+                         normal=normal,
+                         texcoords=None,  # Can add UV computation if desired
+                         obj=self)
