@@ -188,8 +188,7 @@ raytracer.scene.append(AABB(position=(-0.5,-0.3,-5),size=(0.5,0.5,0.5),material=
 raytracer.lights = []  # Limpiar las luces existentes
 raytracer.lights.append(AmbientLight(intensity=0.5))
 raytracer.lights.append(DirectionalLight(direction=(-1, 0, -1), intensity=0.7))
-
-#raytracer.lights.append(PointLight(point=(1.5,0,-5),intensity=1,color=(1,0,1)))
+raytracer.lights.append(PointLight(point=(1.5,1.5,-5),intensity=1,color=(1,0,1)))
 
 raytracer.rtClear()
 raytracer.rtRender()
